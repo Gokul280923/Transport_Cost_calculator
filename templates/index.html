@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Cost Calculator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #logo-container {
+            background-color: black;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #logo {
+            display: block;
+            margin: 0 auto;
+            width: 150px;
+        }
+        .dropdown-option img{
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+        main {
+            flex: 1;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        input[type="text"], input[type="number"], select { 
+            width: 100%; 
+            padding: 5px; 
+            box-sizing: border-box;
+        }
+        input[type="submit"] { 
+            margin-top: 10px; 
+            padding: 10px 20px;
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            width: auto;
+            font-size: 14px;
+            border-radius: 4px;
+            display: block;
+            margin-left: 0;
+            margin-right: auto;
+        }
+        input[type="submit"]:hover { 
+            background-color: #45a049; 
+        }
+        .action-buttons { 
+            display: flex; 
+            justify-content: center; 
+            gap: 5px; 
+            padding: 0; 
+            box-sizing: border-box;
+            margin-top: 8px;
+        }
+        .action-buttons button { 
+            padding: 5px 8px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px; 
+            width: 75px; 
+        }
+        .action-buttons button.add-button { 
+            background-color: #007bff; 
+            color: white; 
+        }
+        .action-buttons button.add-button:hover { 
+            background-color: #0056b3; 
+        }
+        .action-buttons button.remove-button { 
+            background-color: #e60000; 
+            color: white; 
+        }
+        .action-buttons button.remove-button:hover { 
+            background-color: #b30000; 
+        }
+        .row { 
+            display: flex; 
+            flex-wrap: wrap;
+            gap: 20px; 
+            margin-bottom: 20px;
+        }
+        .row > div { 
+            flex: 1; 
+            min-width: 200px;
+        }
+        .red { 
+            color: red; 
+        }
+        .green { 
+            color: green; 
+        }
+        @media (max-width: 600px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .custom-select select {
+            display: none;
+        }
+        .select-selected {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .select-selected:after {
+            position: absolute;
+            content: "";
+            top: 14px;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border: 6px solid transparent;
+            border-color: #000 transparent transparent transparent;
+        }
+        .select-items div, .select-selected {
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+            cursor: pointer;
+        }
+        .select-items {
+            position: absolute;
+            background-color: #f8f8f8;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 99;
+        }
+        .select-hide {
+            display: none;
+        }
+        .select-items div:hover, .same-as-selected {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .vehicle-option {
+            display: flex;
+            align-items: center;
+        }
+        .vehicle-option img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div id="logo-container">
+        <img src="../static/logo.png" alt="Company Logo" id="logo">
+    </div>
+    <main>
+        <h1>Transport Cost Calculator</h1>
+        <form id="entryForm">
+            <div class="row">
+                <div id="vehicleTypeContainer">
+                    <label for="vehicleType">Vehicle Type:</label>
+                    <div class="custom-select">
+                        <select id="vehicleType" name="vehicleType" required>
+                            <option value="ace" data-image="/static/ace.png">Ace</option>
+                            <option value="pickup" data-image="/static/pickup.png">Pickup</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="manualCostContainer">
+                    <label for="manualCost">Enter Transport Cost (optional):</label>
+                    <input type="number" id="manualCost" name="manualCost" step="0.01" min="0">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Party Name</th>
+                        <th>Amount</th>
+                        <th>Pincode</th>
+                        <th>Distance (km)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="entryTable">
+                    <tr>
+                        <td><input type="text" name="partyName[]" required></td>
+                        <td><input type="number" name="amount[]" required></td>
+                        <td><input type="text" name="pincode[]" required></td>
+                        <td><input type="number" name="distance[]" step="0.01" required></td>
+                        <td class="action-buttons">
+                            <button type="button" class="add-button" onclick="addRow(this)">Add</button>
+                            <button type="button" class="remove-button" onclick="removeRow(this)" style="display:none;">Remove</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="submit" value="Calculate Transport Cost">
+        </form>
+
+        <div id="results" style="display:none;">
+            <h2>Calculation Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Party Name</th>
+                        <th>Amount</th>
+                        <th>Pincode</th>
+                        <th>Distance (km)</th>
+                        <th>Transport Cost</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTable"></tbody>
+            </table>
+            <h3>Total Transport Cost: <span id="totalCost"></span></h3>
+        </div>
+    </main>
+
+    <script>
+        function addRow(button) {
+            const newRow = button.closest('tr').cloneNode(true);
+            newRow.querySelectorAll('input').forEach(input => input.value = '');
+            newRow.querySelector('.action-buttons .remove-button').style.display = 'inline-block';
+            document.getElementById('entryTable').appendChild(newRow);
+            updateRemoveButtons();
+        }
+
+        function removeRow(button) {
+            button.closest('tr').remove();
+            updateRemoveButtons();
+        }
+
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('#entryTable tr');
+            rows.forEach((row, index) => {
+                const removeButton = row.querySelector('.action-buttons .remove-button');
+                removeButton.style.display = rows.length === 1 ? 'none' : 'inline-block';
+            });
+        }
+
+        document.getElementById('entryForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    body: formData
+                });
+                const results = await response.json();
+                displayResults(results);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayResults(results) {
+            const resultsTable = document.getElementById('resultsTable');
+            resultsTable.innerHTML = '';
+
+            let totalCost = 0;
+
+            results.forEach((result) => {
+                totalCost += result.transportCost;
+                const colorClass = result.color === 'red' ? 'red' : 'green';
+                resultsTable.innerHTML += `
+                    <tr>
+                        <td>${result.partyName}</td>
+                        <td>${result.amount}</td>
+                        <td>${result.pincode}</td>
+                        <td>${result.distance}</td>
+                        <td class="${colorClass}">${result.transportCost}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('totalCost').innerText = totalCost;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const customSelects = document.querySelectorAll('.custom-select');
+            customSelects.forEach(customSelect => {
+                const selectElement = customSelect.querySelector('select');
+                const selectedDiv = document.createElement('div');
+                selectedDiv.classList.add('select-selected');
+                selectedDiv.innerText = selectElement.options[selectElement.selectedIndex].innerText;
+                customSelect.appendChild(selectedDiv);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('select-items', 'select-hide');
+
+                for (let i = 0; i < selectElement.length; i++) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.innerText = selectElement.options[i].innerText;
+                    const img = document.createElement('img');
+                    img.src = selectElement.options[i].dataset.image;
+                    optionDiv.classList.add('vehicle-option');
+                    optionDiv.prepend(img);
+                    
+                    optionDiv.addEventListener('click', function() {
+                        selectedDiv.innerText = this.innerText;
+                        selectElement.selectedIndex = i;
+                        optionsDiv.querySelectorAll('div').forEach(option => option.classList.remove('same-as-selected'));
+                        this.classList.add('same-as-selected');
+                        optionsDiv.classList.add('select-hide');
+                    });
+
+                    optionsDiv.appendChild(optionDiv);
+                }
+                
+                customSelect.appendChild(optionsDiv);
+                selectedDiv.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeAllSelect(this);
+                    optionsDiv.classList.toggle('select-hide');
+                });
+            });
+
+            function closeAllSelect(exceptElement) {
+                const selects = document.querySelectorAll('.select-items');
+                selects.forEach(select => {
+                    if (select.parentNode !== exceptElement.parentNode) {
+                        select.classList.add('select-hide');
+                    }
+                });
+            }
+            document.addEventListener('click', closeAllSelect);
+        });
+    </script>
+</body>
+</html>
